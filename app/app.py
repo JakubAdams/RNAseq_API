@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, Query, Response
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 import pandas as pd
 import io
 
@@ -9,6 +10,7 @@ from models import Base, GeneExpression
 #create tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
+#create an instance of the FastAPI class
 app = FastAPI(title="RNA-seq expression API")
 
 #dependency that gives us a database session per request
@@ -19,6 +21,13 @@ def get_db():
     finally:
         db.close()
 
+#use a Pydantic model to define in what format FastAPI should
+#return the data in the "responsemodel=" parameter
+class Response(BaseModel):
+    gene_id: str
+    sample_id: str
+    tpm: float
+
 @app.get("/expression")
 def get_expression(
     gene_id: str,
@@ -26,6 +35,7 @@ def get_expression(
     min_tpm: float | None = None,
     format: str = Query("json", regex="^(json|csv)$"),
     db: Session = Depends(get_db),
+    response_model = Response
 ):
     #build query using SQLAlchemy (no raw SQL)
     query = db.query(GeneExpression).filter(GeneExpression.gene_id == gene_id)
