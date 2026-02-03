@@ -4,7 +4,7 @@
 from sqlalchemy import Column, String, Float
 from sqlalchemy.orm import declarative_base
 #define the default class from which subsequent classes will inherit
-Base = declarative_base
+Base = declarative_base()
 
 #define database schema
 class GeneExpression(Base):
