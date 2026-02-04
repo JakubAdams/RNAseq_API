@@ -4,8 +4,8 @@ from pydantic import BaseModel
 import pandas as pd
 import io
 
-from database import SessionLocal, engine
-from models import Base, GeneExpression
+from .database import SessionLocal, engine
+from .models import Base, GeneExpression
 
 #create tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -23,19 +23,18 @@ def get_db():
 
 #use a Pydantic model to define in what format FastAPI should
 #return the data in the "responsemodel=" parameter
-class Response(BaseModel):
+class Expression(BaseModel):
     gene_id: str
     sample_id: str
     tpm: float
 
-@app.get("/expression")
+@app.get("/expression", response_model=Expression)
 def get_expression(
-    gene_id: str,
+    gene_id: str = "TP53",
     sample_id: str | None = None,
     min_tpm: float | None = None,
-    format: str = Query("json", regex="^(json|csv)$"),
+#    format: str = Query("json", regex="^(json|csv)$"),
     db: Session = Depends(get_db),
-    response_model = Response
 ):
     #build query using SQLAlchemy (no raw SQL)
     query = db.query(GeneExpression).filter(GeneExpression.gene_id == gene_id)
@@ -57,16 +56,16 @@ def get_expression(
     ]
 
     #CSV option
-    if format == "csv":
-        df = pd.DataFrame(data)
-        buf = io.StringIO()
-        df.to_csv(buf, index=False)
-
-        return Response(
-            content=buf.getvalue(),
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=expression.csv"},
-        )
+#    if format == "csv":
+#        df = pd.DataFrame(data)
+#        buf = io.StringIO()
+#        df.to_csv(buf, index=False)
+#
+#        return Response(
+#            content=buf.getvalue(),
+#            media_type="text/csv",
+#            headers={"Content-Disposition": "attachment; filename=expression.csv"},
+#        )
 
     #default: JSON
     return {

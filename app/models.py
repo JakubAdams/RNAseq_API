@@ -12,4 +12,4 @@ class GeneExpression(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     gene_id = Column(String, primary_key=False)
     sample_id = Column(String, primary_key=False)
-    TPM = Column(Float)
+    tpm = Column(Float)

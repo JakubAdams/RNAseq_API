@@ -1,51 +1,50 @@
-from fastapi import FastAPI, Depends, Query, Response
-from sqlalchemy.orm import Session
-import pandas as pd
-import io
+#from fastapi import FastAPI, Depends, Query, Response
+#from sqlalchemy.orm import Session
+#import pandas as pd
+#import io
 
-from database import SessionLocal, engine
-from models import Base, GeneExpression
+#from database import SessionLocal, engine
+#from models import Base, GeneExpression
 
 #create tables if they don't exist
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="RNA-seq expression API")
+#Base.metadata.create_all(bind=engine)
+#app = FastAPI(title="RNA-seq expression API")
 
 #dependency that gives us a database session per request
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+######def get_db():
+#####    db = SessionLocal()
+#####    try:
+#####        yield db
+#####    finally:
+#####        db.close()
 
-@app.get("/expression")
-def get_expression(
-    gene_id: str,
-    sample_id: str | None = None,
-    min_tpm: float | None = None,
-    format: str = Query("json", regex="^(json|csv)$"),
-    db: Session = Depends(get_db),
-):
+#####@app.get("/expression")
+#####def get_expression(
+#####    gene_id: str,
+#####    sample_id: str | None = None,
+#####    min_tpm: float | None = None,
+#####    format: str = Query("json", regex="^(json|csv)$"),
+#####    db: Session = Depends(get_db),
+#####):
     #build query using SQLAlchemy (no raw SQL)
-    query = db.query(GeneExpression).filter(GeneExpression.gene_id == gene_id)
+####    query = db.query(GeneExpression).filter(GeneExpression.gene_id == gene_id)
 
-    if sample_id:
-        query = query.filter(GeneExpression.sample_id == sample_id)
+####    if sample_id:
+###        query = query.filter(GeneExpression.sample_id == sample_id)
 
-    results = query.all()
+###    results = query.all()
 
     #convert to list of dicts
-    data = [
-        {
-            "gene_id": r.gene_id,
-            "sample_id": r.sample_id,
-            "tpm": r.tpm,
-        }
-        for r in results
-        if min_tpm is None or r.tpm >= min_tpm
-    ]
-
+###    data = [
+##        {
+##            "gene_id": r.gene_id,
+##            "sample_id": r.sample_id,
+##            "tpm": r.tpm,
+##        }
+##        for r in results
+##        if min_tpm is None or r.tpm >= min_tpm
+#    ]
+'''
     #CSV option
     if format == "csv":
         df = pd.DataFrame(data)
@@ -64,3 +63,4 @@ def get_expression(
         "n_results": len(data),
         "results": data,
     }
+'''
