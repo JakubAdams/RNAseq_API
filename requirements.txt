@@ -2,5 +2,4 @@ fastapi[standard]
 uvicorn
 SQLAlchemy
 pandas
-#only if using PostgreSQL
 psycopg2-binary
